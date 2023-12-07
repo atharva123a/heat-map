@@ -6,6 +6,7 @@ import { BarGraph } from './BarGraph';
 import { PieGraph } from './PieGraph';
 import { HeatGraph } from './HeatMap';
 import { useState } from 'react';
+import { heatmapData } from './heatmapdata';
 
 //Data for line Graph
 const data = [
@@ -100,23 +101,34 @@ SaveData.defaultProps = {
 class CocoBot extends Component {
   state = {
     showLineGraph: false,
-    chatSteps: []
+    showBarGraph: false,
+    showPieGraph: false,
+    showHeatMap: false
   };
 
   handleGraphSelection = graphType => {
     console.log(`graph selected`);
     if (graphType === 'line') {
       this.setState({ showLineGraph: true });
-      //   setTimeout(() => {
-      //     this.setState({ showLineGraph: false });
-      //   }, 3000);
-      // Trigger the 'line-example' step
     }
-    // Handle other graph types as needed
+    if (graphType === 'bar') {
+      this.setState({ showBarGraph: true });
+    }
+    if (graphType === 'pie') {
+      this.setState({ showPieGraph: true });
+    }
+    if (graphType === 'heat') {
+      this.setState({ showHeatMap: true });
+    }
   };
 
   render() {
-    const { showLineGraph } = this.state;
+    const {
+      showLineGraph,
+      showBarGraph,
+      showPieGraph,
+      showHeatMap
+    } = this.state;
 
     return (
       <div style={{ display: 'flex' }}>
@@ -124,48 +136,6 @@ class CocoBot extends Component {
           handleEnd={this.handleEnd}
           style={{ margin: '0 10px' }}
           steps={[
-            {
-              id: '1',
-              message:
-                "Hello there! I'm Cocobot, designed to help you understand graphs.",
-              trigger: '2'
-            },
-            {
-              id: '2',
-              message: 'What is your name?',
-              trigger: 'name'
-            },
-            {
-              id: 'name',
-              user: true,
-              trigger: '3'
-            },
-            {
-              id: '3',
-              message: 'Hi {previousValue}! How old are you?',
-              trigger: 'age'
-            },
-            {
-              id: 'age',
-              user: true,
-              trigger: '4',
-              validator: value => {
-                if (isNaN(value)) {
-                  return 'value must be a number';
-                } else if (value < 0) {
-                  return 'value must be positive';
-                } else if (value > 120) {
-                  return `${value}? Come on!`;
-                }
-
-                return true;
-              }
-            },
-            {
-              id: '4',
-              message: 'Thanks for the info!',
-              trigger: '5'
-            },
             {
               id: '5',
               message: "Type of graph you're looking for? ",
@@ -202,7 +172,9 @@ class CocoBot extends Component {
               id: 'bar',
               message:
                 'Bar graphs: These are used to compare different categories or groups, such as comparing the incidence of a disease in different age groups or geographic regions.',
-              trigger: 'bar-example'
+              trigger: () => {
+                this.handleGraphSelection('bar');
+              }
             },
             {
               id: 'bar-example',
@@ -214,7 +186,9 @@ class CocoBot extends Component {
               id: 'pie',
               message:
                 'Pie charts: These are used to show how different categories or groups contribute to a whole, such as the proportion of different diseases in a patient population. ',
-              trigger: 'pie-example'
+              trigger: () => {
+                this.handleGraphSelection('pie');
+              }
             },
             {
               id: 'pie-example',
@@ -225,7 +199,9 @@ class CocoBot extends Component {
               id: 'heat',
               message:
                 'Heat maps: These are used  used to show user behavior on specific web pages or webpage templates for example, where users have clicked on a page.',
-              trigger: 'heat-example'
+              trigger: () => {
+                this.handleGraphSelection('heat');
+              }
             },
             {
               id: 'heat-example',
@@ -258,6 +234,9 @@ class CocoBot extends Component {
         />
         <div style={{ margin: '20px 20px' }}>
           {showLineGraph && <LineGraph data={data} />}
+          {showBarGraph && <BarGraph data={bardata} />}
+          {showPieGraph && <PieGraph data={piedata} />}
+          {showHeatMap && <HeatGraph data={heatmapData} />}
         </div>
       </div>
     );

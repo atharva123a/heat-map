@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import * as d3 from 'd3';
+import ColorLegend from './ColorLegend'; // Import the ColorLegend component
 
-const MARGIN = { top: 10, right: 10, bottom: 30, left: 30 };
+// const MARGIN = { top: 10, right: 10, bottom: 30, left: 30 };
+const MARGIN = { top: 10, right: 10, bottom: 30, left: 50 }; // Increased left margin
 
 export const HeatGraph = ({ data }) => {
   // bounds = area inside the axis
-  const width = 400,
+  const width = 300,
     height = 250;
   const boundsWidth = width - MARGIN.right - MARGIN.left;
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
@@ -41,23 +43,61 @@ export const HeatGraph = ({ data }) => {
   const colorScale = d3
     .scaleSequential()
     .interpolator(d3.interpolateInferno)
-    .domain([min, max]);
+    .domain([max, min]);
 
-  // Build the rectangles
+  // // Build the rectangles
+  // const allRects = data.map((d, i) => {
+  //   return (
+  //     <rect
+  //       key={i}
+  //       r={4}
+  //       x={xScale(d.x)}
+  //       y={yScale(d.y)}
+  //       width={xScale.bandwidth()}
+  //       height={yScale.bandwidth()}
+  //       opacity={1}
+  //       fill={colorScale(d.value)}
+  //       rx={5}
+  //       stroke={'white'}
+  //     />
+  //   );
+  // });
+
   const allRects = data.map((d, i) => {
+    const x = xScale(d.x);
+    const y = yScale(d.y);
+    const width = xScale.bandwidth();
+    const height = yScale.bandwidth();
+    const value = d.value.toFixed(2); // Format the value to two decimal places
+    // Determine the contrast color based on the background color
+    const contrastColor =
+      d3.lab(colorScale(d.value)).l > 50 ? '#000000' : '#ffffff';
+
     return (
-      <rect
-        key={i}
-        r={4}
-        x={xScale(d.x)}
-        y={yScale(d.y)}
-        width={xScale.bandwidth()}
-        height={yScale.bandwidth()}
-        opacity={1}
-        fill={colorScale(d.value)}
-        rx={5}
-        stroke={'white'}
-      />
+      <g key={i}>
+        <rect
+          r={4}
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          opacity={1}
+          fill={colorScale(d.value)}
+          rx={5}
+          stroke={'white'}
+        />
+        <text
+          x={x + width / 2}
+          y={y + height / 2}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fontSize={10}
+          // fill="#ffffff" // Text color
+          fill={contrastColor} // Use contrast color for text
+        >
+          {value}
+        </text>
+      </g>
     );
   });
 
@@ -106,6 +146,8 @@ export const HeatGraph = ({ data }) => {
           {yLabels}
         </g>
       </svg>
+      {/* Render the ColorLegend component here */}
+      <ColorLegend data={data} />
     </div>
   );
 };
